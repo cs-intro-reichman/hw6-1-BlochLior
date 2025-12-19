@@ -25,6 +25,9 @@ public class Runigram {
 		Color[][] grey = grayScaled(tinypic);
 		System.out.println();
 		print(grey);
+		Color[][] scaled = scaled(tinypic, 3, 5);
+		System.out.println();
+		print(scaled);
 		
 	}
 
@@ -76,9 +79,7 @@ public class Runigram {
 		for (int i = 0; i < image.length; i++) {
 			for (int j = 0; j < image[i].length; j++) {
 				print(image[i][j]);
-				if (count % 4 == 0 && count != 0) { // think how to make the println work every four lines
-					// except for the first iter
-					// i.e. 1,2,3,4 println, 1,2,3,4 println
+				if (count % image[0].length == 0 && count != 0) { 
 					System.out.println();
 				}
 				count++;
@@ -168,8 +169,34 @@ public class Runigram {
 	 * The image is scaled (resized) to have the given width and height.
 	 */
 	public static Color[][] scaled(Color[][] image, int width, int height) {
-		//// Replace the following statement with your code
-		return null;
+		// Improper input handling:
+		if (image.length < 1) {
+			System.out.println("Improper input entered to <flippedHorizontally(Color[][] image)>");
+			return null;
+		} else if (image[0].length < 1) {
+			System.out.println("Improper input entered to <flippedHorizontally(Color[][] image)>");
+			return null;
+		}
+
+		// scaled needs fixing it seems
+		// looks like the loop logic isn't right
+		double hRatio = (double)image.length / height;
+		double wRatio = (double)image[0].length / width;
+		Color[][] result = new Color[height][width];
+		for (int h = 0; h < result.length; h++) {
+			int currHSrc = (int)(h * hRatio);
+			if (currHSrc >= image.length) {
+				currHSrc = image.length - 1;
+			}
+			for (int w = 0; w < result[h].length; w++) {
+				int currWSrc = (int)(w * wRatio);
+				if (currWSrc >= image[0].length) {
+					currWSrc = image[0].length - 1;
+				}
+				result[h][w] = image[currHSrc][currWSrc];
+			}
+		}
+		return result;
 	}
 	
 	/**
