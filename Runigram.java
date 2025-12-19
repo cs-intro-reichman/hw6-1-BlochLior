@@ -28,7 +28,12 @@ public class Runigram {
 		Color[][] scaled = scaled(tinypic, 3, 5);
 		System.out.println();
 		print(scaled);
-		
+
+		// Test morph:
+		Color[][] cake = read("cake.ppm");
+		Color[][] ironman = read("ironman.ppm");
+		int steps = 5;
+		morph(ironman, cake, steps);
 	}
 
 	/** Returns a 2D array of Color values, representing the image data
@@ -205,11 +210,22 @@ public class Runigram {
 	 * v = alpha * v1 + (1 - alpha) * v2, where v1 and v2 are the corresponding r, g, b
 	 * values in the two input color.
 	 */
+	public static int blend(int c1Val, int c2Val, double alpha) {
+		// Blends each rgb val at a time alone
+		return (int)(c1Val * alpha + c2Val * (1 - alpha));
+	}
+
 	public static Color blend(Color c1, Color c2, double alpha) {
-		//// Replace the following statement with your code
-		return null;
+		// Will it blend?
+		int rVal = blend(c1.getRed(), c2.getRed(), alpha);
+		int gVal = blend(c1.getGreen(), c2.getGreen(), alpha);
+		int bVal = blend(c1.getBlue(), c2.getBlue(), alpha);
+		Color itWillBlend = new Color(rVal, gVal, bVal);
+		return itWillBlend;
 	}
 	
+	
+
 	/**
 	 * Cosntructs and returns an image which is the blending of the two given images.
 	 * The blended image is the linear combination of (alpha) part of the first image
@@ -217,8 +233,33 @@ public class Runigram {
 	 * The two images must have the same dimensions.
 	 */
 	public static Color[][] blend(Color[][] image1, Color[][] image2, double alpha) {
-		//// Replace the following statement with your code
-		return null;
+		boolean safetyCheck1 = (image1.length == image2.length || image1.length != 0);
+		boolean safetyCheck2 = (image1[0].length == image2[0].length || image2[0].length != 0);
+		// First, make sure the 2d array has rows at all
+		if (!safetyCheck1) {
+			System.out.println("Improper input, unequal row numbers between images to blend");
+			return null;
+		}
+		// Then, make sure there are 1d arrays in the 2d arrays of length >= 1
+		// This could have been further "safet-ified" but i think this is better then nothing
+		if (!safetyCheck2) {
+			System.out.println("Improper input, unequal row numbers between images to blend");
+			return null;
+		}
+		// Herein we have proper inputs of same length
+		Color[][] result = new Color[image1.length][image1[0].length];
+		int rowIdx = 0;
+		while (rowIdx < image1.length) {
+			int colIdx = 0;
+			while (colIdx < image1[rowIdx].length) {
+				Color pixel1 = image1[rowIdx][colIdx];
+				Color pixel2 = image2[rowIdx][colIdx];
+				result[rowIdx][colIdx] = blend(pixel1, pixel2, alpha);
+				colIdx++;
+			}
+			rowIdx++;
+		}
+		return result;
 	}
 
 	/**
@@ -228,7 +269,27 @@ public class Runigram {
 	 * of the source image.
 	 */
 	public static void morph(Color[][] source, Color[][] target, int n) {
-		//// Replace this comment with your code
+		if (target.length == 0 || source.length == 0) {
+			System.out.println("No image provided, no morphing doing");
+			return;
+		} 
+		if (target[0].length == 0 || source[0].length == 0) {
+			System.out.println("No 1d arrays in images");
+			return;
+		}
+		// Scale images to same size:
+		if (source.length != target.length || source[0].length != target[0].length) {
+			target = scaled(target, source[0].length, source.length);
+		}
+		Color[][] imageOut = new Color[source.length][source[0].length];
+		for (int i = 0; i < n; i++) {
+			double alpha = 1.0 - ((double)i/n);
+			imageOut = blend(source, target, alpha);
+			setCanvas(imageOut);
+			display(imageOut);
+			StdDraw.pause(800);
+		}
+
 	}
 	
 	/** Creates a canvas for the given image. */
